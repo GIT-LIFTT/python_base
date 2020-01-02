@@ -9,12 +9,17 @@ def cisco_backup():
     time.sleep(1)
     remote_connection.send(password+'\n')
     time.sleep(1)
+    remote_connection.send("copy running-config start\n")
+    time.sleep(1)
+    remote_connection.send("\n")
+    time.sleep(1)
     remote_connection.send("copy running-config tftp:\n")
     time.sleep(1)
     remote_connection.send("100.100.100.1\n")
     time.sleep(1)
     remote_connection.send("\n")
-    print("end of function")
+    #output = remote_connection.recv(10000)
+    print("completed")
 
 for i in range (0,15):
  try:
