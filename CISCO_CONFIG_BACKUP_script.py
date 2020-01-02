@@ -31,7 +31,6 @@ for i in range (0,15):
   print(ip_address+(str(i)),"completed")
 
 
-
  except:
   #print("not connected")
   print(ip_address + (str(i)), "failed")
