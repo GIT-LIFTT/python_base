@@ -26,6 +26,16 @@ remote_asa = {
 'verbose': False,
 }
 
+#define the object/ host for netmiko
+mgmt_asa = {
+'device_type': 'cisco_asa',
+'ip': '200.100.100.1',
+'username': 'cisco',
+'password': 'cisco',
+'secret': 'cisco',
+'verbose': False,
+}
+
 
 
 
@@ -41,7 +51,7 @@ def cisco_backup_ios():
     time.sleep(1)
     remote_connection.send("copy running-config tftp:\n")
     time.sleep(1)
-    remote_connection.send("100.100.100.1\n")
+    remote_connection.send("200.100.100.2\n")
     time.sleep(1)
     remote_connection.send("\n")
     print("completed")
@@ -58,33 +68,65 @@ def cisco_backup_asa():
 # sends the command via the netmiko libary and saves the output to a varible called output
     output = net_connect.send_command("show hostname")
 
+# strips any extra chracthers from the end of the hostname things like spaces etc etc
     output = output.rstrip()
+
+# we create a varible with a string of the path we want to save it in
     path = ("/var/lib/tftpboot/")
+
+# we join the path with the hostname to create the complete save path for the file we are about to generate
     completepath = os.path.join (path,output)
-    print (completepath)
+
+#error checking    print (completepath)
+
+# open a file in write mode using the path name created above
     f = open(completepath, "w")
+# run the command show run through the connection to the asa via netmiko and write only the output generated to the vaible output
     output = net_connect.send_command("show run")
 
+#write the varible output to the file
     f.write(output)
+    print("100.100.100.253")
     f.close()
     print ()
-
+##################################################
+######### new node commands    ###################
+#################################################
     net_connect = ConnectHandler(**remote_asa)
     net_connect.enable()
 
     output = net_connect.send_command("show hostname")
     output = output.rstrip()
     path = ("/var/lib/tftpboot/")
-    print ("/var/lib/tftpboot/")
     completepath = os.path.join (path, output)
     f = open("/var/lib/tftpboot/"+output,"w")
     output = net_connect.send_command("show run")
     f.write(output)
+    print("100.100.100.254")
     f.close()
     print ()
 
+##################################################
+######### new node commands    ###################
+#################################################
+    net_connect = ConnectHandler(**mgmt_asa)
+    net_connect.enable()
+
+    output = net_connect.send_command("show hostname")
+    output = output.rstrip()
+    path = ("/var/lib/tftpboot/")
+    completepath = os.path.join(path, output)
+    f = open("/var/lib/tftpboot/" + output, "w")
+    output = net_connect.send_command("show run")
+    f.write(output)
+    print("200.100.100.1")
+    f.close()
+    print()
+
+
+
 #for the main nodes
-for i in range (0,15):
+for i in range (2,15):
  try:
   ssh_client = paramiko.SSHClient()
   ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -94,13 +136,17 @@ for i in range (0,15):
   print(ip_address+(str(i)),"completed")
 
 
- except:
-  print("not connected")
+
+ except Exception as e:
+  print("failed firewall backup (netmiko) due to  ", e)
   print(ip_address + (str(i)), "failed")
 
 # for the asa's
+try :
+ cisco_backup_asa()
+except Exception as e:
+    print("failed firewall backup (netmiko) due to  ",e)
 
-cisco_backup_asa()
 
 #for C in range (16,18):
 # try:
