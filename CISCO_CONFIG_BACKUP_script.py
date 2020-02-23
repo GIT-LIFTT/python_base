@@ -9,7 +9,7 @@ password = "cisco"
 #define the object/ host for netmiko
 local_asa = {
 'device_type': 'cisco_asa',
-'ip': '100.100.100.16',
+'ip': '100.100.100.253',
 'username': 'cisco',
 'password': 'cisco',
 'secret': 'cisco',
@@ -19,7 +19,7 @@ local_asa = {
 #define the object/ host for netmiko
 remote_asa = {
 'device_type': 'cisco_asa',
-'ip': '100.100.100.17',
+'ip': '100.100.100.254',
 'username': 'cisco',
 'password': 'cisco',
 'secret': 'cisco',
@@ -65,6 +65,7 @@ def cisco_backup_asa():
 # puts us in enable mode
     net_connect.enable()
 
+    net_connect.send_command("write mem")
 # sends the command via the netmiko libary and saves the output to a varible called output
     output = net_connect.send_command("show hostname")
 
@@ -86,7 +87,7 @@ def cisco_backup_asa():
 
 #write the varible output to the file
     f.write(output)
-    print("100.100.100.253")
+    print("100.100.100.253 completed")
     f.close()
     print ()
 ##################################################
@@ -94,7 +95,7 @@ def cisco_backup_asa():
 #################################################
     net_connect = ConnectHandler(**remote_asa)
     net_connect.enable()
-
+    net_connect.send_command("write mem")
     output = net_connect.send_command("show hostname")
     output = output.rstrip()
     path = ("/var/lib/tftpboot/")
@@ -102,7 +103,7 @@ def cisco_backup_asa():
     f = open("/var/lib/tftpboot/"+output,"w")
     output = net_connect.send_command("show run")
     f.write(output)
-    print("100.100.100.254")
+    print("100.100.100.254 completed")
     f.close()
     print ()
 
@@ -111,7 +112,7 @@ def cisco_backup_asa():
 #################################################
     net_connect = ConnectHandler(**mgmt_asa)
     net_connect.enable()
-
+    net_connect.send_command("write mem")
     output = net_connect.send_command("show hostname")
     output = output.rstrip()
     path = ("/var/lib/tftpboot/")
@@ -119,7 +120,7 @@ def cisco_backup_asa():
     f = open("/var/lib/tftpboot/" + output, "w")
     output = net_connect.send_command("show run")
     f.write(output)
-    print("200.100.100.1")
+    print("200.100.100.1 completed")
     f.close()
     print()
 
@@ -138,7 +139,7 @@ for i in range (2,15):
 
 
  except Exception as e:
-  print("failed firewall backup (netmiko) due to  ", e)
+  print("failed firewall backup (paramiko) due to  ", e)
   print(ip_address + (str(i)), "failed")
 
 # for the asa's
