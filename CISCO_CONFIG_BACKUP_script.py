@@ -127,7 +127,7 @@ def cisco_backup_asa():
 
 
 #for the main nodes
-for i in range (2,19):
+for i in range (2,21):
  try:
   ssh_client = paramiko.SSHClient()
   ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
